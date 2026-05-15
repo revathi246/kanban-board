@@ -11,25 +11,73 @@ import { router } from "@inertiajs/react";
 
 import CardModal from "../Modals/CardModal";
 
+import {
+  useSortable,
+} from "@dnd-kit/sortable";
+
+import {
+  CSS,
+} from "@dnd-kit/utilities";
+
 export default function CardItem({
   card,
 }) {
 
-  const [showActions, setShowActions] = useState(false);
+  const [showActions, setShowActions] =
+    useState(false);
 
-  const [editModal, setEditModal] = useState(false);
+  const [editModal, setEditModal] =
+    useState(false);
 
-  // FORMAT DATE
+  // SORTABLE
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: String(card.id),
+  });
+
+  // STYLE
+const style = {
+
+transform:
+  transform
+    ? CSS.Transform.toString(
+        transform
+      )
+    : undefined,
+
+  transition,
+
+opacity:
+  isDragging
+    ? 0
+    : 1,
+};
+
+  // DATE
   const formattedDate = new Date(
     card.created_at
-  ).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+  ).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+    }
+  );
 
   return (
     <>
+      {/* CARD */}
       <div
+        ref={setNodeRef}
+
+        style={style}
+
         className="
           bg-white
           border border-slate-200
@@ -48,27 +96,52 @@ export default function CardItem({
       >
 
         {/* TOP */}
-        <div className="flex items-start justify-between gap-2">
+        <div
+          className="
+            flex items-start
+            justify-between
+            gap-2
+          "
+        >
 
-          {/* TITLE */}
-          <h3
+          {/* DRAG HANDLE */}
+          <div
+            {...attributes}
+            {...listeners}
+
             className="
-              text-[13px]
-              font-semibold
-              text-slate-800
-              leading-5
+              flex-1
+
+              cursor-grab
+              active:cursor-grabbing
             "
           >
-            {card.title}
-          </h3>
+
+            {/* TITLE */}
+            <h3
+              className="
+                text-[13px]
+                font-semibold
+                text-slate-800
+                leading-5
+              "
+            >
+              {card.title}
+            </h3>
+          </div>
 
           {/* MENU */}
           <div className="relative">
 
             <button
-              onClick={() =>
-                setShowActions(!showActions)
-              }
+              onClick={(e) => {
+
+                e.stopPropagation();
+
+                setShowActions(
+                  !showActions
+                );
+              }}
 
               className="
                 text-slate-400
@@ -106,17 +179,22 @@ export default function CardItem({
 
                 {/* EDIT */}
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+
+                    e.stopPropagation();
 
                     setEditModal(true);
 
-                    setShowActions(false);
+                    setShowActions(
+                      false
+                    );
                   }}
 
                   className="
                     w-full
 
-                    flex items-center gap-2
+                    flex items-center
+                    gap-2
 
                     px-3 py-2
 
@@ -134,9 +212,13 @@ export default function CardItem({
 
                 {/* DELETE */}
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
 
-                    setShowActions(false);
+                    e.stopPropagation();
+
+                    setShowActions(
+                      false
+                    );
 
                     if (
                       confirm(
@@ -153,7 +235,8 @@ export default function CardItem({
                   className="
                     w-full
 
-                    flex items-center gap-2
+                    flex items-center
+                    gap-2
 
                     px-3 py-2
 
@@ -188,9 +271,16 @@ export default function CardItem({
         </p>
 
         {/* FOOTER */}
-        <div className="flex items-center justify-between mt-3">
+        <div
+          className="
+            flex items-center
+            justify-between
 
-          {/* Avatar */}
+            mt-3
+          "
+        >
+
+          {/* AVATAR */}
           <div
             className="
               w-6 h-6
@@ -201,7 +291,8 @@ export default function CardItem({
               from-indigo-600
               to-violet-500
 
-              flex items-center justify-center
+              flex items-center
+              justify-center
 
               text-white
               text-[10px]
@@ -214,7 +305,8 @@ export default function CardItem({
           {/* DATE */}
           <div
             className="
-              flex items-center gap-1
+              flex items-center
+              gap-1
 
               text-[10px]
               text-slate-400
@@ -246,8 +338,21 @@ export default function CardItem({
           router.patch(
             `/cards/${card.id}`,
             {
-              title: data.title,
-              description: data.description,
+              title:
+                data.title,
+
+              description:
+                data.description,
+            },
+
+            {
+              preserveScroll: true,
+
+              onSuccess: () => {
+                setEditModal(
+                  false
+                );
+              },
             }
           );
         }}

@@ -1,8 +1,19 @@
 import { useState } from "react";
+
 import { router } from "@inertiajs/react";
+
 import {
   Plus,
 } from "lucide-react";
+
+import {
+  useDroppable,
+} from "@dnd-kit/core";
+
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 import CardItem from "./CardItem";
 
@@ -14,200 +25,172 @@ export default function BoardColumn({
   cards,
 }) {
 
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] =
+    useState(false);
 
-  const colorStyles = {
-    slate: {
-      border: "border-slate-200",
-      bg: "bg-slate-50",
-      badge: "bg-slate-200 text-slate-700",
-      button: "hover:bg-slate-100",
-    },
+  // DROPPABLE
+  const {
+    setNodeRef,
+  } = useDroppable({
+    id: title,
+  });
 
-    blue: {
-      border: "border-blue-200",
-      bg: "bg-blue-50",
-      badge: "bg-blue-200 text-blue-700",
-      button: "hover:bg-blue-100",
-    },
+  const colors = {
 
-    amber: {
-      border: "border-amber-200",
-      bg: "bg-amber-50",
-      badge: "bg-amber-200 text-amber-700",
-      button: "hover:bg-amber-100",
-    },
+    slate:
+      "border-slate-200 bg-slate-50",
 
-    purple: {
-      border: "border-purple-200",
-      bg: "bg-purple-50",
-      badge: "bg-purple-200 text-purple-700",
-      button: "hover:bg-purple-100",
-    },
+    blue:
+      "border-blue-200 bg-blue-50",
 
-    green: {
-      border: "border-green-200",
-      bg: "bg-green-50",
-      badge: "bg-green-200 text-green-700",
-      button: "hover:bg-green-100",
-    },
+    amber:
+      "border-amber-200 bg-amber-50",
+
+    purple:
+      "border-purple-200 bg-purple-50",
+
+    green:
+      "border-green-200 bg-green-50",
   };
-
-  const styles = colorStyles[color];
 
   return (
     <>
-      {/* COLUMN */}
-      <div
-        className={`
-          w-[250px]
-
-          rounded-2xl
-          border
-
-          ${styles.border}
-          ${styles.bg}
-
-          p-3
-
-          flex flex-col
-
-          max-h-[78vh]
-        `}
-      >
+    <div
+      ref={setNodeRef}
+      className={`
+        w-[250px]
+        rounded-2xl
+        border
+        ${colors[color]}
+        p-3
+        flex flex-col
+        min-h-[500px]
+        h-[78vh]
+      `}
+    >
 
         {/* HEADER */}
-        <div className="flex items-center justify-between mb-3">
+        <div
+          className="
+            flex items-center
+            justify-between
 
-          <div className="flex items-center gap-2">
+            mb-3
+          "
+        >
 
-            {/* COUNT */}
-            <div
-              className={`
-                w-6 h-6
+          <h2
+            className="
+              text-sm
+              font-semibold
+            "
+          >
+            {title}
+          </h2>
 
-                rounded-full
-
-                flex items-center justify-center
-
-                text-[11px]
-                font-semibold
-
-                ${styles.badge}
-              `}
-            >
-              {cards.length}
-            </div>
-
-            {/* TITLE */}
-            <h2
-              className="
-                text-sm
-                font-semibold
-                text-slate-800
-              "
-            >
-              {title}
-            </h2>
-          </div>
+          <span
+            className="
+              text-xs
+              text-slate-500
+            "
+          >
+            {cards.length}
+          </span>
         </div>
 
-        {/* ADD CARD */}
+        {/* ADD */}
         <button
-          onClick={() => setOpenModal(true)}
-          className={`
-            flex items-center justify-center gap-1.5
+          onClick={() =>
+            setOpenModal(true)
+          }
 
-            w-full
+          className="
+            flex items-center
+            justify-center
+            gap-1
+
+            bg-white
+
+            border
+            border-slate-200
+
+            rounded-xl
 
             py-2
             mb-3
 
-            rounded-xl
-
-            bg-white
-
-            border border-slate-200
-
-            text-[13px]
-            text-slate-600
-
-            transition
-
-            ${styles.button}
-          `}
+            text-xs
+          "
         >
           <Plus size={14} />
 
-          <span>Add Card</span>
+          Add Card
         </button>
 
-        {/* CARDS */}
-        <div
-          className="
-            flex-1
-            overflow-y-auto
-            space-y-2
-          "
+        {/* SORTABLE */}
+        <SortableContext
+          items={cards.map(
+            (card) => String(card.id)
+          )}
+
+          strategy={
+            verticalListSortingStrategy
+          }
         >
 
-          {cards.length > 0 ? (
+      <div
+        className="
+          flex-1
+          min-h-[400px]
+          overflow-y-auto
+          space-y-2
+          pr-1
+        "
+      >
 
-            cards.map((card) => (
+            {cards.map((card) => (
+
               <CardItem
                 key={card.id}
                 card={card}
               />
-            ))
-
-          ) : (
-
-            <div
-              className="
-                flex items-center justify-center
-
-                h-24
-
-                rounded-xl
-
-                border border-dashed border-slate-300
-
-                text-xs
-                text-slate-400
-              "
-            >
-              No cards
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        </SortableContext>
       </div>
 
+      {/* MODAL */}
       <CardModal
         open={openModal}
-        onClose={() => setOpenModal(false)}
+
+        onClose={() =>
+          setOpenModal(false)
+        }
+
         mode="create"
 
-        onSubmit={(cardData) => {
+        onSubmit={(data) => {
 
-            router.post(
+          router.post(
             "/cards",
+
             {
-                title: cardData.title,
-                description: cardData.description,
-                status: title,
+              title:
+                data.title,
+
+              description:
+                data.description,
+
+              status: title,
             },
+
             {
-                preserveScroll: true,
-
-                onSuccess: () => {
-                setOpenModal(false);
-                },
-
-                onError: (errors) => {
-                console.log(errors);
-                },
+              onSuccess: () =>
+                setOpenModal(
+                  false
+                ),
             }
-            );
+          );
         }}
       />
     </>

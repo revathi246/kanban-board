@@ -10,9 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_14_104221) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_15_072013) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "activities", force: :cascade do |t|
+    t.string "action"
+    t.bigint "card_id"
+    t.datetime "created_at", null: false
+    t.text "message"
+    t.datetime "updated_at", null: false
+    t.index ["card_id"], name: "index_activities_on_card_id"
+    t.index ["created_at"], name: "index_activities_on_created_at"
+  end
 
   create_table "cards", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -24,4 +34,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_14_104221) do
     t.index ["position"], name: "index_cards_on_position"
     t.index ["status"], name: "index_cards_on_status"
   end
+
+  add_foreign_key "activities", "cards", on_delete: :nullify
 end

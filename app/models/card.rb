@@ -1,7 +1,7 @@
 class Card < ApplicationRecord
 
   validates :title, presence: true
-
+  has_many :activities
   STATUSES = [
     "Backlog",
     "To Do",

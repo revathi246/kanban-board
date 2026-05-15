@@ -19,5 +19,14 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   root 'cards#index'
-  resources :cards
+  resources :cards do
+
+    member do
+      patch :move
+    end
+
+    collection do
+      patch :reorder
+    end
+  end
 end

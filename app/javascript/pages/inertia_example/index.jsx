@@ -8,6 +8,7 @@ import HistoricalBanner from "../components/Timeline/HistoricalBanner";
 import ActivityLog from "../components/Activity/ActivityLog";
 export default function Index({
   cards,
+  activities,
 }) {
   const [collapsed, setCollapsed] = useState(false);
   
@@ -64,7 +65,9 @@ export default function Index({
           <TimelineSlider />
 
           {/* Activity */}
-          <ActivityLog />
+          <ActivityLog
+            activities={activities}
+          />
 
         </div>
       </main>
