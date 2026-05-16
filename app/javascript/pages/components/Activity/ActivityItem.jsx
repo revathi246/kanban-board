@@ -1,48 +1,78 @@
 import {
-  ArrowRight,
+  Plus,
   Pencil,
   Trash2,
   MoveRight,
+  ArrowDownUp,
 } from "lucide-react";
-
 export default function ActivityItem({
   activity,
 }) {
 
-  const iconMap = {
+const iconMap = {
 
-    move: (
-      <MoveRight
-        size={10}
-        className="text-blue-600"
-      />
-    ),
+  move: (
 
-    create: (
-      <ArrowRight
-        size={10}
-        className="text-green-600"
-      />
-    ),
+    activity.message
+      ?.toLowerCase()
+      .includes("reordered")
 
-    edit: (
-      <Pencil
-        size={10}
-        className="text-amber-600"
-      />
-    ),
+      ? (
 
-    delete: (
-      <Trash2
-        size={10}
-        className="text-red-600"
-      />
-    ),
-  };
+        <ArrowDownUp
+          size={10}
+          className="
+            text-violet-600
+          "
+        />
+      )
 
-  const time = new Date(
+      : (
+
+        <MoveRight
+          size={10}
+          className="
+            text-blue-600
+          "
+        />
+      )
+  ),
+
+  create: (
+    <Plus
+      size={10}
+      className="
+        text-green-600
+      "
+    />
+  ),
+
+  edit: (
+    <Pencil
+      size={10}
+      className="
+        text-amber-600
+      "
+    />
+  ),
+
+  delete: (
+    <Trash2
+      size={10}
+      className="
+        text-red-600
+      "
+    />
+  ),
+};
+
+  const dateTime = new Date(
     activity.created_at
-  ).toLocaleTimeString([], {
+  ).toLocaleString([], {
+
+    day: "2-digit",
+    month: "short",
+
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -99,7 +129,7 @@ export default function ActivityItem({
           shrink-0
         "
       >
-        {time}
+        {dateTime}
       </span>
     </div>
   );

@@ -16,25 +16,17 @@ export default function ActivityLog({
   activities = [],
 }) {
 
-  const [activityList, setActivityList] =
-    useState(activities);
-
-  const [page, setPage] =
+   const [page, setPage] =
     useState(1);
 
   const perPage = 6;
 
-  useEffect(() => {
-
-    setActivityList(
-      [...activities].sort(
-        (a, b) =>
-          new Date(b.created_at) -
-          new Date(a.created_at)
-      )
+  const activityList =
+    [...activities].sort(
+      (a, b) =>
+        new Date(b.created_at) -
+        new Date(a.created_at)
     );
-
-  }, [activities]);
 
   const totalPages =
     Math.ceil(
@@ -67,7 +59,7 @@ export default function ActivityLog({
 
         rounded-xl
 
-        h-[350px]
+        h-[310px]
 
         flex
         flex-col
@@ -165,93 +157,146 @@ export default function ActivityLog({
       </div>
 
       {/* PAGINATION */}
-      <div
-        className="
-          pt-2
-          mt-2
+<div
+  className="
+    pt-2
+    mt-2
 
-          border-t
-          border-slate-100
+    border-t
+    border-slate-100
 
-          flex
-          items-center
-          justify-between
-        "
-      >
+    flex
+    items-center
+    justify-between
+    gap-1
+  "
+>
 
-        <button
-          onClick={() =>
-            setPage((prev) =>
-              Math.max(
-                prev - 1,
-                1
-              )
-            )
-          }
+  {/* FIRST */}
+  <button
+    onClick={() =>
+      setPage(1)
+    }
 
-          disabled={page === 1}
+    disabled={page === 1}
 
-          className="
-            h-6 w-6
+    className="
+      px-2
+      h-6
 
-            rounded-md
-            border
+      rounded-md
+      border
 
-            flex
-            items-center
-            justify-center
+      text-[10px]
 
-            disabled:opacity-40
-          "
-        >
+      disabled:opacity-40
+    "
+  >
+    First
+  </button>
 
-          <ChevronLeft size={12} />
+  {/* PREV */}
+  <button
+    onClick={() =>
+      setPage((prev) =>
+        Math.max(
+          prev - 1,
+          1
+        )
+      )
+    }
 
-        </button>
+    disabled={page === 1}
 
-        <span
-          className="
-            text-[10px]
-            text-slate-500
-          "
-        >
-          {page} / {totalPages || 1}
-        </span>
+    className="
+      h-6 w-6
 
-        <button
-          onClick={() =>
-            setPage((prev) =>
-              Math.min(
-                prev + 1,
-                totalPages
-              )
-            )
-          }
+      rounded-md
+      border
 
-          disabled={
-            page === totalPages ||
-            totalPages === 0
-          }
+      flex
+      items-center
+      justify-center
 
-          className="
-            h-6 w-6
+      disabled:opacity-40
+    "
+  >
 
-            rounded-md
-            border
+    <ChevronLeft size={12} />
 
-            flex
-            items-center
-            justify-center
+  </button>
 
-            disabled:opacity-40
-          "
-        >
+  {/* PAGE */}
+  <span
+    className="
+      text-[10px]
+      text-slate-500
+    "
+  >
+    {page} / {totalPages || 1}
+  </span>
 
-          <ChevronRight size={12} />
+  {/* NEXT */}
+  <button
+    onClick={() =>
+      setPage((prev) =>
+        Math.min(
+          prev + 1,
+          totalPages
+        )
+      )
+    }
 
-        </button>
+    disabled={
+      page === totalPages ||
+      totalPages === 0
+    }
 
-      </div>
+    className="
+      h-6 w-6
+
+      rounded-md
+      border
+
+      flex
+      items-center
+      justify-center
+
+      disabled:opacity-40
+    "
+  >
+
+    <ChevronRight size={12} />
+
+  </button>
+
+  {/* LAST */}
+  <button
+    onClick={() =>
+      setPage(totalPages)
+    }
+
+    disabled={
+      page === totalPages ||
+      totalPages === 0
+    }
+
+    className="
+      px-2
+      h-6
+
+      rounded-md
+      border
+
+      text-[10px]
+
+      disabled:opacity-40
+    "
+  >
+    Last
+  </button>
+
+</div>
 
     </section>
   );

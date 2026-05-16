@@ -1,4 +1,7 @@
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import {
   X,
@@ -12,19 +15,64 @@ export default function CardModal({
   initialData = {},
 }) {
 
-const [title, setTitle] = useState(
-  initialData.title || ""
-);
+  const [title, setTitle] =
+    useState("");
 
-const [description, setDescription] = useState(
-  initialData.description || ""
-);
+  const [
+    description,
+    setDescription,
+  ] = useState("");
+
+  const [errors, setErrors] =
+    useState({});
+
+  // PREFILL
+  useEffect(() => {
+
+    if (!open) return;
+
+    if (mode === "edit") {
+
+      setTitle(
+        initialData.title || ""
+      );
+
+      setDescription(
+        initialData.description || ""
+      );
+
+    } else {
+
+      setTitle("");
+      setDescription("");
+    }
+
+    setErrors({});
+
+  }, [
+    open,
+    mode,
+  ]);
 
   if (!open) return null;
 
+  // SUBMIT
   const handleSubmit = () => {
 
-    if (!title.trim()) return;
+    // TITLE VALIDATION
+    if (
+      !title.trim()
+    ) {
+
+      setErrors({
+        title:
+          "Title is required",
+      });
+
+      return;
+    }
+
+    setErrors({});
 
     onSubmit({
       title,
@@ -80,6 +128,7 @@ const [description, setDescription] = useState(
         >
 
           <div>
+
             <h2
               className="
                 text-sm
@@ -88,7 +137,9 @@ const [description, setDescription] = useState(
               "
             >
               {mode === "create"
+
                 ? "Create Card"
+
                 : "Edit Card"}
             </h2>
 
@@ -106,6 +157,7 @@ const [description, setDescription] = useState(
           {/* CLOSE */}
           <button
             onClick={onClose}
+
             className="
               p-1.5
 
@@ -139,39 +191,86 @@ const [description, setDescription] = useState(
               "
             >
               Title
+
+              <span
+                className="
+                  text-red-500
+                  ml-0.5
+                "
+              >
+                *
+              </span>
             </label>
 
             <input
               type="text"
 
               value={title}
-              onChange={(e) =>
-                setTitle(e.target.value)
-              }
+
+              onChange={(e) => {
+
+                setTitle(
+                  e.target.value
+                );
+
+                // REMOVE ERROR
+                setErrors({
+                  ...errors,
+                  title: "",
+                });
+              }}
 
               placeholder="Enter card title"
 
-              className="
+              className={`
                 w-full
 
                 px-3 py-2.5
 
                 rounded-xl
 
-                border border-slate-200
+                border
 
                 text-[13px]
                 text-slate-700
 
                 outline-none
 
-                focus:border-indigo-400
-                focus:ring-2
-                focus:ring-indigo-100
-
                 transition
-              "
+
+                ${
+                  errors.title
+
+                    ? `
+                      border-red-500
+                      focus:ring-2
+                      focus:ring-red-100
+                    `
+
+                    : `
+                      border-slate-200
+                      focus:border-indigo-400
+                      focus:ring-2
+                      focus:ring-indigo-100
+                    `
+                }
+              `}
             />
+
+            {/* ERROR */}
+            {errors.title && (
+
+              <p
+                className="
+                  mt-1
+
+                  text-[11px]
+                  text-red-500
+                "
+              >
+                {errors.title}
+              </p>
+            )}
           </div>
 
           {/* DESCRIPTION */}
@@ -195,8 +294,11 @@ const [description, setDescription] = useState(
               rows="4"
 
               value={description}
+
               onChange={(e) =>
-                setDescription(e.target.value)
+                setDescription(
+                  e.target.value
+                )
               }
 
               placeholder="Enter description..."
@@ -241,6 +343,7 @@ const [description, setDescription] = useState(
           {/* CANCEL */}
           <button
             onClick={onClose}
+
             className="
               px-3 py-2
 
@@ -261,6 +364,7 @@ const [description, setDescription] = useState(
           {/* SAVE */}
           <button
             onClick={handleSubmit}
+
             className="
               px-4 py-2
 
@@ -279,7 +383,9 @@ const [description, setDescription] = useState(
             "
           >
             {mode === "create"
+
               ? "Create"
+
               : "Save Changes"}
           </button>
         </div>

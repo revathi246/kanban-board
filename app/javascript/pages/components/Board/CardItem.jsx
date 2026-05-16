@@ -1,34 +1,15 @@
 import { useState } from "react";
-
-import {
-  MoreVertical,
-  CalendarDays,
-  Pencil,
-  Trash2,
-} from "lucide-react";
-
+import { MoreVertical, CalendarDays,Pencil,Trash2,} from "lucide-react";
 import { router } from "@inertiajs/react";
-
 import CardModal from "../Modals/CardModal";
+import { useSortable} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
-import {
-  useSortable,
-} from "@dnd-kit/sortable";
+export default function CardItem({ card }) {
 
-import {
-  CSS,
-} from "@dnd-kit/utilities";
-
-export default function CardItem({
-  card,
-}) {
-
-  const [showActions, setShowActions] =
-    useState(false);
-
-  const [editModal, setEditModal] =
-    useState(false);
-
+  const [showActions, setShowActions] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+ 
   // SORTABLE
   const {
     attributes,
@@ -75,26 +56,8 @@ opacity:
       {/* CARD */}
       <div
         ref={setNodeRef}
-
         style={style}
-
-        className="
-          bg-white
-          border border-slate-200
-
-          rounded-xl
-
-          p-3
-
-          shadow-sm
-
-          hover:shadow-md
-          transition
-
-          relative
-        "
-      >
-
+        className=" bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md transition relative">
         {/* TOP */}
         <div
           className="
@@ -103,7 +66,6 @@ opacity:
             gap-2
           "
         >
-
           {/* DRAG HANDLE */}
           <div
             {...attributes}
@@ -111,12 +73,10 @@ opacity:
 
             className="
               flex-1
-
               cursor-grab
               active:cursor-grabbing
             "
           >
-
             {/* TITLE */}
             <h3
               className="
@@ -280,27 +240,6 @@ opacity:
           "
         >
 
-          {/* AVATAR */}
-          <div
-            className="
-              w-6 h-6
-
-              rounded-full
-
-              bg-gradient-to-br
-              from-indigo-600
-              to-violet-500
-
-              flex items-center
-              justify-center
-
-              text-white
-              text-[10px]
-              font-semibold
-            "
-          >
-            {card.title?.charAt(0)}
-          </div>
 
           {/* DATE */}
           <div

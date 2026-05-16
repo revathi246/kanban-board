@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { useEffect } from "react";
 import Sidebar from "../components/Layout/Sidebar";
 import Header from "../components/Layout/Header";
 import Board from "../components/Board/Board";
@@ -11,7 +11,14 @@ export default function Index({
   activities,
 }) {
   const [collapsed, setCollapsed] = useState(false);
-  
+  const [activityList, setActivityList] = useState(activities);
+
+useEffect(() => {
+
+  setActivityList(activities);
+
+}, [activities]);
+console.log(activities)
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
 
@@ -41,7 +48,11 @@ export default function Index({
         {/* Board */}
           <div className="xl:col-span-3">
 
-            <Board cards={cards} />
+            <Board cards={cards}
+              setActivityList={
+                setActivityList
+              }
+            />
 
           </div>
         {/* <HistoricalBanner /> */}
@@ -66,7 +77,9 @@ export default function Index({
 
           {/* Activity */}
           <ActivityLog
-            activities={activities}
+              activities={
+                activityList
+              }
           />
 
         </div>

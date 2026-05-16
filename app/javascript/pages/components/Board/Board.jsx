@@ -40,6 +40,7 @@ const groupCards = (cards) => ({
 
 export default function Board({
   cards = {},
+  setActivityList,
 }) {
 
   const columns = [
@@ -239,6 +240,30 @@ const handleDragEnd = async ({
             }),
           }
         )
+        .then(() => {
+
+          const movingCard =
+            activeItems[
+              activeIndex
+            ];
+
+          setActivityList((prev) => [
+
+            {
+              id: Date.now(),
+
+              action: "move",
+
+              message:
+                `${movingCard.title} reordered`,
+
+              created_at:
+                new Date(),
+            },
+
+            ...prev,
+          ]);
+        })
         .catch((err) => {
           console.log(err);
         });
@@ -306,6 +331,25 @@ const handleDragEnd = async ({
           }),
         }
       )
+      .then(() => {
+
+        setActivityList((prev) => [
+
+          {
+            id: Date.now(),
+
+            action: "move",
+
+            message:
+              `${movingCard.title} moved to ${overColumn}`,
+
+            created_at:
+              new Date(),
+          },
+
+          ...prev,
+        ]);
+      })
       .catch((err) => {
         console.log(err);
       });
