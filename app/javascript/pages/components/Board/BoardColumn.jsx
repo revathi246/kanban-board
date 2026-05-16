@@ -23,6 +23,7 @@ export default function BoardColumn({
   title,
   color,
   cards,
+  historicalMode,
 }) {
 
   const [openModal, setOpenModal] =
@@ -98,34 +99,38 @@ export default function BoardColumn({
           </span>
         </div>
 
-        {/* ADD */}
-        <button
-          onClick={() =>
-            setOpenModal(true)
-          }
+        {!historicalMode && (
 
-          className="
-            flex items-center
-            justify-center
-            gap-1
+          <button
+            onClick={() =>
+              setOpenModal(true)
+            }
 
-            bg-white
+            className="
+              flex items-center
+              justify-center
+              gap-1
 
-            border
-            border-slate-200
+              bg-white
 
-            rounded-xl
+              border
+              border-slate-200
 
-            py-2
-            mb-3
+              rounded-xl
 
-            text-xs
-          "
-        >
-          <Plus size={14} />
+              py-2
+              mb-3
 
-          Add Card
-        </button>
+              text-xs
+            "
+          >
+
+            <Plus size={14} />
+
+            Add Card
+
+          </button>
+        )}
 
         {/* SORTABLE */}
         <SortableContext
@@ -153,6 +158,9 @@ export default function BoardColumn({
               <CardItem
                 key={card.id}
                 card={card}
+                historicalMode={
+                  historicalMode
+                }
               />
             ))}
           </div>

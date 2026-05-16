@@ -11,7 +11,6 @@ class CardsController < ApplicationController
     activities =
       Activity
         .order(created_at: :desc)
-        .limit(20)
 
     render inertia:
       "inertia_example/index",
@@ -24,6 +23,7 @@ class CardsController < ApplicationController
         activities:
           activities.as_json,
       }
+      
   end
 
   # CREATE
@@ -46,7 +46,26 @@ class CardsController < ApplicationController
         "#{card.title} created"
     )
 
+    BoardEvent.create!(
+      event_type: "create",
+
+      payload: {
+        card_id: card.id,
+
+        title: card.title,
+
+        description:
+          card.description,
+
+        status:
+          card.status,
+
+        position:
+          card.position,
+      }
+    )
     redirect_to root_path
+
   end
 
   # UPDATE
@@ -70,8 +89,20 @@ class CardsController < ApplicationController
       message:
         "#{card.title} updated"
     )
+    BoardEvent.create!(
+      event_type: "edit",
 
+      payload: {
+        card_id: card.id,
+
+        title: card.title,
+
+        description:
+          card.description,
+      }
+    )
     redirect_to root_path
+
   end
 
   # DELETE
@@ -89,7 +120,13 @@ class CardsController < ApplicationController
     )
 
     card.destroy!
+    BoardEvent.create!(
+      event_type: "delete",
 
+      payload: {
+        card_id: card.id,
+      }
+    )
     redirect_to root_path
   end
 
@@ -146,13 +183,189 @@ class CardsController < ApplicationController
 
       message: message
     )
+    BoardEvent.create!(
+      event_type: "move",
 
+      payload: {
+        card_id: card.id,
+
+        title: card.title,
+
+        status:
+          card.status,
+
+        position:
+          card.position,
+      }
+    )
     Rails.logger.debug "ACTIVITY CREATED:"
     Rails.logger.debug message
 
     Rails.logger.debug "========== MOVE END =========="
 
     head :ok
+  end
+
+
+  def history
+
+    timestamp =
+      Time.parse(
+        params[:timestamp]
+      )
+
+    events =
+      BoardEvent
+        .where(
+          "created_at <= ?",
+          timestamp
+        )
+        .order(:created_at)
+
+    board = {
+
+      "Backlog" => [],
+
+      "To Do" => [],
+
+      "In Progress" => [],
+
+      "In Review" => [],
+
+      "Done" => [],
+    }
+
+    deleted_ids = []
+
+    events.each do |event|
+
+      payload =
+        event.payload
+
+      case event.event_type
+
+      when "create"
+
+        next if deleted_ids.include?(
+          payload["card_id"]
+        )
+
+        board[
+          payload["status"]
+        ] << {
+
+          id:
+            payload["card_id"],
+
+          title:
+            payload["title"],
+
+          description:
+            payload["description"],
+
+          status:
+            payload["status"],
+
+          position:
+            payload["position"].to_f
+        }
+
+      when "edit"
+
+        board.each do |_column, cards|
+
+          card = cards.find do |c|
+
+            c[:id] ==
+              payload["card_id"]
+          end
+
+          next unless card
+
+          card[:title] =
+            payload["title"]
+
+          card[:description] =
+            payload["description"]
+        end
+
+      when "move"
+
+        moved_card = nil
+
+        board.each do |_column, cards|
+
+          found = cards.find do |c|
+
+            c[:id] ==
+              payload["card_id"]
+          end
+
+          if found
+
+            moved_card = found
+
+            cards.delete(found)
+          end
+        end
+
+        # CARD NOT FOUND
+        unless moved_card
+
+          moved_card = {
+
+            id:
+              payload["card_id"],
+
+            title:
+              payload["title"],
+
+            description:
+              payload["description"],
+
+            status:
+              payload["status"],
+
+            position:
+              payload["position"].to_f,
+          }
+        end
+
+        moved_card[:status] =
+          payload["status"]
+
+        moved_card[:position] =
+          payload["position"].to_f
+
+        board[
+          payload["status"]
+        ] << moved_card
+
+      when "delete"
+
+        deleted_ids <<
+          payload["card_id"]
+
+        board.each do |_column, cards|
+
+          cards.reject! do |card|
+
+            card[:id] ==
+              payload["card_id"]
+          end
+        end
+      end
+    end
+
+    board.each do |_column, cards|
+
+      cards.sort_by! do |card|
+
+        card[:position]
+      end
+    end
+
+    render json: board
   end
 
   private

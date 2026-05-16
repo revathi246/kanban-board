@@ -136,7 +136,7 @@ export default function Sidebar({
         </button>
 
         {/* Activity */}
-        <button
+        {/* <button
           className={`
             w-full flex items-center
             ${collapsed ? "justify-center" : "gap-3"}
@@ -158,10 +158,10 @@ export default function Sidebar({
           {!collapsed && (
             <span>Activity Log</span>
           )}
-        </button>
+        </button> */}
 
         {/* Settings */}
-        <button
+        {/* <button
           className={`
             w-full flex items-center
             ${collapsed ? "justify-center" : "gap-3"}
@@ -183,7 +183,7 @@ export default function Sidebar({
           {!collapsed && (
             <span>Settings</span>
           )}
-        </button>
+        </button> */}
       </nav>
 
       {/* PROFILE */}

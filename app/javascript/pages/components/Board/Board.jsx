@@ -15,8 +15,6 @@ import {
   useEffect,
 } from "react";
 
-import { router } from "@inertiajs/react";
-
 import BoardColumn from "./BoardColumn";
 
 // GROUP
@@ -40,7 +38,10 @@ const groupCards = (cards) => ({
 
 export default function Board({
   cards = {},
+
   setActivityList,
+
+  historicalMode = false,
 }) {
 
   const columns = [
@@ -108,6 +109,10 @@ export default function Board({
     active,
   }) => {
 
+    if (historicalMode) {
+      return;
+    }
+
     const activeId =
       String(active.id);
 
@@ -126,121 +131,124 @@ export default function Board({
   };
 
   // DRAG END
-const handleDragEnd = async ({
-  active,
-  over,
-}) => {
+  const handleDragEnd = async ({
+    active,
+    over,
+  }) => {
 
-  setActiveCard(null);
-
-  if (!over) return;
-
-  try {
-
-    const activeId =
-      String(active.id);
-
-    const overId =
-      String(over.id);
-
-    const activeColumn =
-      findColumn(activeId);
-
-    const overColumn =
-      findColumn(overId);
-
-    if (
-      !activeColumn ||
-      !overColumn
-    ) {
+    if (historicalMode) {
       return;
     }
 
-    const activeItems =
-      boardData[activeColumn];
+    setActiveCard(null);
 
-    const overItems =
-      boardData[overColumn];
+    if (!over) return;
 
-    const activeIndex =
-      activeItems.findIndex(
-        (item) =>
-          String(item.id) === activeId
-      );
+    try {
 
-    // IF DROPPED ON COLUMN
-    let overIndex;
+      const activeId =
+        String(active.id);
 
-    if (boardData[overId]) {
+      const overId =
+        String(over.id);
 
-      overIndex =
-        overItems.length;
+      const activeColumn =
+        findColumn(activeId);
 
-    } else {
-
-      overIndex =
-        overItems.findIndex(
-          (item) =>
-            String(item.id) === overId
-        );
-
-      if (overIndex < 0) {
-        overIndex =
-          overItems.length;
-      }
-    }
-
-    // SAME COLUMN
-    if (
-      activeColumn ===
-      overColumn
-    ) {
+      const overColumn =
+        findColumn(overId);
 
       if (
-        activeIndex !==
-        overIndex
+        !activeColumn ||
+        !overColumn
       ) {
+        return;
+      }
 
-        const reordered =
-          arrayMove(
-            activeItems,
-            activeIndex,
-            overIndex
+      const activeItems =
+        boardData[activeColumn];
+
+      const overItems =
+        boardData[overColumn];
+
+      const activeIndex =
+        activeItems.findIndex(
+          (item) =>
+            String(item.id) === activeId
+        );
+
+      let overIndex;
+
+      if (boardData[overId]) {
+
+        overIndex =
+          overItems.length;
+
+      } else {
+
+        overIndex =
+          overItems.findIndex(
+            (item) =>
+              String(item.id) === overId
           );
 
-        setBoardData((prev) => ({
-          ...prev,
-          [activeColumn]:
-            reordered,
-        }));
+        if (overIndex < 0) {
 
-        fetch(
-          `/cards/${activeId}/move`,
-          {
-            method: "PATCH",
+          overIndex =
+            overItems.length;
+        }
+      }
 
-            headers: {
-              "Content-Type":
-                "application/json",
+      // SAME COLUMN
+      if (
+        activeColumn ===
+        overColumn
+      ) {
 
-              "X-CSRF-Token":
-                document
-                  .querySelector(
-                    'meta[name="csrf-token"]'
-                  )
-                  .content,
-            },
+        if (
+          activeIndex !==
+          overIndex
+        ) {
 
-            body: JSON.stringify({
-              status:
-                activeColumn,
+          const reordered =
+            arrayMove(
+              activeItems,
+              activeIndex,
+              overIndex
+            );
 
-              position:
-                overIndex + 1,
-            }),
-          }
-        )
-        .then(() => {
+          setBoardData((prev) => ({
+            ...prev,
+            [activeColumn]:
+              reordered,
+          }));
+
+          fetch(
+            `/cards/${activeId}/move`,
+            {
+              method: "PATCH",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                "X-CSRF-Token":
+                  document
+                    .querySelector(
+                      'meta[name="csrf-token"]'
+                    )
+                    .content,
+              },
+
+              body: JSON.stringify({
+                status:
+                  activeColumn,
+
+                position:
+                  overIndex + 1,
+              }),
+            }
+          ).then(() => {
 
           const movingCard =
             activeItems[
@@ -267,71 +275,73 @@ const handleDragEnd = async ({
         .catch((err) => {
           console.log(err);
         });
-      }
-
-    } else {
-
-      const movingCard =
-        activeItems[activeIndex];
-
-      if (!movingCard) {
-        return;
-      }
-
-      const updatedSource =
-        activeItems.filter(
-          (item) =>
-            String(item.id) !== activeId
-        );
-
-      const updatedTarget =
-        [...overItems];
-
-      updatedTarget.splice(
-        overIndex,
-        0,
-        {
-          ...movingCard,
-          status:
-            overColumn,
         }
-      );
 
-      setBoardData((prev) => ({
-        ...prev,
-        [activeColumn]:
-          updatedSource,
-        [overColumn]:
-          updatedTarget,
-      }));
+      } else {
 
-      fetch(
-        `/cards/${activeId}/move`,
-        {
-          method: "PATCH",
+        const movingCard =
+          activeItems[activeIndex];
 
-          headers: {
-            "Content-Type":
-              "application/json",
+        if (!movingCard) {
+          return;
+        }
 
-            "X-CSRF-Token":
-              document
-                .querySelector(
-                  'meta[name="csrf-token"]'
-                )
-                .content,
-          },
+        const updatedSource =
+          activeItems.filter(
+            (item) =>
+              String(item.id) !== activeId
+          );
 
-          body: JSON.stringify({
+        const updatedTarget =
+          [...overItems];
+
+        updatedTarget.splice(
+          overIndex,
+          0,
+          {
+            ...movingCard,
+
             status:
               overColumn,
+          }
+        );
 
-            position:
-              overIndex + 1,
-          }),
-        }
-      )
-      .then(() => {
+        setBoardData((prev) => ({
+          ...prev,
+
+          [activeColumn]:
+            updatedSource,
+
+          [overColumn]:
+            updatedTarget,
+        }));
+
+        fetch(
+          `/cards/${activeId}/move`,
+          {
+            method: "PATCH",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              "X-CSRF-Token":
+                document
+                  .querySelector(
+                    'meta[name="csrf-token"]'
+                  )
+                  .content,
+            },
+
+            body: JSON.stringify({
+              status:
+                overColumn,
+
+              position:
+                overIndex + 1,
+            }),
+          }
+        ).then(() => {
 
         setActivityList((prev) => [
 
@@ -353,16 +363,16 @@ const handleDragEnd = async ({
       .catch((err) => {
         console.log(err);
       });
+      }
+
+    } catch (error) {
+
+      console.log(
+        "Drag Error:",
+        error
+      );
     }
-
-  } catch (error) {
-
-    console.log(
-      "Drag Error:",
-      error
-    );
-  }
-};
+  };
 
   return (
 
@@ -373,11 +383,19 @@ const handleDragEnd = async ({
       }
 
       onDragStart={
-        handleDragStart
+        historicalMode
+
+          ? undefined
+
+          : handleDragStart
       }
 
       onDragEnd={
-        handleDragEnd
+        historicalMode
+
+          ? undefined
+
+          : handleDragEnd
       }
     >
 
@@ -417,6 +435,10 @@ const handleDragEnd = async ({
                     column.id
                   ] || []
                 }
+
+                historicalMode={
+                  historicalMode
+                }
               />
             ))}
           </div>
@@ -424,45 +446,48 @@ const handleDragEnd = async ({
       </SortableContext>
 
       {/* OVERLAY */}
-      <DragOverlay>
+      {!historicalMode && (
 
-        {activeCard ? (
+        <DragOverlay>
 
-          <div
-            className="
-              bg-white
-              border border-slate-200
-              rounded-xl
-              p-3
-              shadow-xl
-              w-[250px]
-            "
-          >
+          {activeCard ? (
 
-            <h3
+            <div
               className="
-                text-sm
-                font-semibold
+                bg-white
+                border border-slate-200
+                rounded-xl
+                p-3
+                shadow-xl
+                w-[250px]
               "
             >
-              {activeCard.title}
-            </h3>
 
-            <p
-              className="
-                text-xs
-                text-slate-500
-                mt-2
-              "
-            >
-              {activeCard.description}
-            </p>
+              <h3
+                className="
+                  text-sm
+                  font-semibold
+                "
+              >
+                {activeCard.title}
+              </h3>
 
-          </div>
+              <p
+                className="
+                  text-xs
+                  text-slate-500
+                  mt-2
+                "
+              >
+                {activeCard.description}
+              </p>
 
-        ) : null}
+            </div>
 
-      </DragOverlay>
+          ) : null}
+
+        </DragOverlay>
+      )}
 
     </DndContext>
   );

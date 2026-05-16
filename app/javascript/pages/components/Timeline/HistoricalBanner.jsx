@@ -3,14 +3,36 @@ import {
   Lock,
 } from "lucide-react";
 
-export default function HistoricalBanner() {
+export default function HistoricalBanner({
+  selectedDate,
+}) {
+
+  const formattedDate =
+    selectedDate
+
+      ? new Date(
+          selectedDate
+        ).toLocaleString(
+          "en-IN",
+          {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        )
+
+      : "";
 
   return (
     <div
       className="
         mt-4
 
-        flex items-center justify-between
+        flex items-center
+        justify-between
 
         bg-amber-50
         border border-amber-200
@@ -22,7 +44,11 @@ export default function HistoricalBanner() {
     >
 
       {/* LEFT */}
-      <div className="flex items-center gap-3">
+      <div
+        className="
+          flex items-center gap-3
+        "
+      >
 
         <div
           className="
@@ -32,16 +58,21 @@ export default function HistoricalBanner() {
 
             bg-amber-100
 
-            flex items-center justify-center
+            flex items-center
+            justify-center
           "
         >
+
           <History
             size={15}
-            className="text-amber-600"
+            className="
+              text-amber-600
+            "
           />
         </div>
 
         <div>
+
           <h3
             className="
               text-[13px]
@@ -58,7 +89,17 @@ export default function HistoricalBanner() {
               text-amber-700
             "
           >
-            Editing and drag actions are disabled.
+
+            Viewing board snapshot from
+
+            <span
+              className="
+                ml-1
+                font-semibold
+              "
+            >
+              {formattedDate}
+            </span>
           </p>
         </div>
       </div>
@@ -72,9 +113,12 @@ export default function HistoricalBanner() {
           text-amber-700
         "
       >
+
         <Lock size={12} />
 
-        <span>Read Only</span>
+        <span>
+          Read Only
+        </span>
       </div>
     </div>
   );

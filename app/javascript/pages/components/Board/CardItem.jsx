@@ -1,15 +1,34 @@
 import { useState } from "react";
-import { MoreVertical, CalendarDays,Pencil,Trash2,} from "lucide-react";
+
+import {
+  MoreVertical,
+  CalendarDays,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+
 import { router } from "@inertiajs/react";
+
 import CardModal from "../Modals/CardModal";
-import { useSortable} from "@dnd-kit/sortable";
+
+import {
+  useSortable,
+} from "@dnd-kit/sortable";
+
 import { CSS } from "@dnd-kit/utilities";
 
-export default function CardItem({ card }) {
+export default function CardItem({
+  card,
+  historicalMode,
+}) {
 
-  const [showActions, setShowActions] = useState(false);
-  const [editModal, setEditModal] = useState(false);
- 
+  const [showActions, setShowActions] =
+    useState(false);
+
+  const [editModal, setEditModal] =
+    useState(false);
+  const [deleteModal,setDeleteModal] = useState(false);
+
   // SORTABLE
   const {
     attributes,
@@ -23,41 +42,68 @@ export default function CardItem({ card }) {
   });
 
   // STYLE
-const style = {
+  const style = {
 
-transform:
-  transform
-    ? CSS.Transform.toString(
-        transform
-      )
-    : undefined,
+    transform:
+      transform
 
-  transition,
+        ? CSS.Transform.toString(
+            transform
+          )
 
-opacity:
-  isDragging
-    ? 0
-    : 1,
-};
+        : undefined,
+
+    transition,
+
+    opacity:
+      isDragging
+        ? 0
+        : 1,
+  };
 
   // DATE
-  const formattedDate = new Date(
-    card.created_at
-  ).toLocaleDateString(
-    "en-US",
-    {
-      month: "short",
-      day: "numeric",
-    }
-  );
+const formattedDate =
+  card.created_at
+
+    ? new Date(
+        card.created_at
+      ).toLocaleDateString(
+        "en-US",
+        {
+          month: "short",
+          day: "numeric",
+        }
+      )
+
+    : "Historical";
 
   return (
     <>
       {/* CARD */}
       <div
         ref={setNodeRef}
+
         style={style}
-        className=" bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md transition relative">
+
+        className="
+          bg-white
+
+          border border-slate-200
+
+          rounded-xl
+
+          p-3
+
+          shadow-sm
+
+          hover:shadow-md
+
+          transition
+
+          relative
+        "
+      >
+
         {/* TOP */}
         <div
           className="
@@ -66,17 +112,40 @@ opacity:
             gap-2
           "
         >
+
           {/* DRAG HANDLE */}
           <div
-            {...attributes}
-            {...listeners}
 
-            className="
+            {...(
+              historicalMode
+                ? {}
+                : attributes
+            )}
+
+            {...(
+              historicalMode
+                ? {}
+                : listeners
+            )}
+
+            className={`
               flex-1
-              cursor-grab
-              active:cursor-grabbing
-            "
+
+              ${
+                historicalMode
+
+                  ? `
+                      cursor-not-allowed
+                    `
+
+                  : `
+                      cursor-grab
+                      active:cursor-grabbing
+                    `
+              }
+            `}
           >
+
             {/* TITLE */}
             <h3
               className="
@@ -91,129 +160,128 @@ opacity:
           </div>
 
           {/* MENU */}
-          <div className="relative">
+          {!historicalMode && (
 
-            <button
-              onClick={(e) => {
+            <div className="relative">
 
-                e.stopPropagation();
+              <button
+                onClick={(e) => {
 
-                setShowActions(
-                  !showActions
-                );
-              }}
+                  e.stopPropagation();
 
-              className="
-                text-slate-400
-                hover:text-slate-600
-                transition
-              "
-            >
-              <MoreVertical size={15} />
-            </button>
+                  setShowActions(
+                    !showActions
+                  );
+                }}
 
-            {/* DROPDOWN */}
-            {showActions && (
-
-              <div
                 className="
-                  absolute
-                  right-0
-                  top-6
-
-                  w-28
-
-                  bg-white
-
-                  border border-slate-200
-
-                  rounded-xl
-
-                  shadow-lg
-
-                  overflow-hidden
-
-                  z-20
+                  text-slate-400
+                  hover:text-slate-600
+                  transition
                 "
               >
+                <MoreVertical size={15} />
+              </button>
 
-                {/* EDIT */}
-                <button
-                  onClick={(e) => {
+              {/* DROPDOWN */}
+              {showActions && (
 
-                    e.stopPropagation();
-
-                    setEditModal(true);
-
-                    setShowActions(
-                      false
-                    );
-                  }}
-
+                <div
                   className="
-                    w-full
+                    absolute
+                    right-0
+                    top-6
 
-                    flex items-center
-                    gap-2
+                    w-28
 
-                    px-3 py-2
+                    bg-white
 
-                    text-[12px]
-                    text-slate-700
+                    border border-slate-200
 
-                    hover:bg-slate-50
-                    transition
+                    rounded-xl
+
+                    shadow-lg
+
+                    overflow-hidden
+
+                    z-20
                   "
                 >
-                  <Pencil size={12} />
 
-                  Edit
-                </button>
+                  {/* EDIT */}
+                  <button
+                    onClick={(e) => {
 
-                {/* DELETE */}
-                <button
-                  onClick={(e) => {
+                      e.stopPropagation();
 
-                    e.stopPropagation();
-
-                    setShowActions(
-                      false
-                    );
-
-                    if (
-                      confirm(
-                        "Delete this card?"
-                      )
-                    ) {
-
-                      router.delete(
-                        `/cards/${card.id}`
+                      setEditModal(
+                        true
                       );
-                    }
-                  }}
 
-                  className="
-                    w-full
+                      setShowActions(
+                        false
+                      );
+                    }}
 
-                    flex items-center
-                    gap-2
+                    className="
+                      w-full
 
-                    px-3 py-2
+                      flex items-center
+                      gap-2
 
-                    text-[12px]
-                    text-red-600
+                      px-3 py-2
 
-                    hover:bg-red-50
-                    transition
-                  "
-                >
-                  <Trash2 size={12} />
+                      text-[12px]
+                      text-slate-700
 
-                  Delete
-                </button>
-              </div>
-            )}
-          </div>
+                      hover:bg-slate-50
+                      transition
+                    "
+                  >
+
+                    <Pencil size={12} />
+
+                    Edit
+                  </button>
+
+                  {/* DELETE */}
+                  <button
+                    onClick={(e) => {
+
+                      e.stopPropagation();
+
+                      setShowActions(
+                        false
+                      );
+
+                      setDeleteModal(true);
+                    }}
+
+                    className="
+                      w-full
+
+                      flex items-center
+                      gap-2
+
+                      px-3 py-2
+
+                      text-[12px]
+                      text-red-600
+
+                      hover:bg-red-50
+                      transition
+                    "
+                  >
+
+                    <Trash2 size={12} />
+
+                    Delete
+                  </button>
+                  
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* DESCRIPTION */}
@@ -240,7 +308,6 @@ opacity:
           "
         >
 
-
           {/* DATE */}
           <div
             className="
@@ -251,6 +318,7 @@ opacity:
               text-slate-400
             "
           >
+
             <CalendarDays size={12} />
 
             <span>
@@ -261,41 +329,164 @@ opacity:
       </div>
 
       {/* EDIT MODAL */}
-      <CardModal
-        open={editModal}
+      {!historicalMode && (
 
-        onClose={() =>
-          setEditModal(false)
-        }
+        <CardModal
+          open={editModal}
 
-        mode="edit"
+          onClose={() =>
+            setEditModal(false)
+          }
 
-        initialData={card}
+          mode="edit"
 
-        onSubmit={(data) => {
+          initialData={card}
 
-          router.patch(
-            `/cards/${card.id}`,
-            {
-              title:
-                data.title,
+          onSubmit={(data) => {
 
-              description:
-                data.description,
-            },
+            router.patch(
+              `/cards/${card.id}`,
+              {
+                title:
+                  data.title,
 
-            {
-              preserveScroll: true,
-
-              onSuccess: () => {
-                setEditModal(
-                  false
-                );
+                description:
+                  data.description,
               },
-            }
-          );
-        }}
-      />
+
+              {
+                preserveScroll: true,
+
+                onSuccess: () => {
+
+                  setEditModal(
+                    false
+                  );
+                },
+              }
+            );
+          }}
+        />
+      )}
+      {/* DELETE MODAL */}
+      {deleteModal && (
+
+        <div
+          className="
+            fixed inset-0
+
+            bg-black/40
+
+            flex items-center
+            justify-center
+
+            z-[999]
+          "
+        >
+
+          <div
+            className="
+              bg-white
+
+              w-[320px]
+
+              rounded-2xl
+
+              p-5
+
+              shadow-xl
+            "
+          >
+
+            {/* TITLE */}
+            <h3
+              className="
+                text-lg
+                font-semibold
+                text-slate-800
+              "
+            >
+              Delete Card
+            </h3>
+
+            {/* MESSAGE */}
+            <p
+              className="
+                mt-2
+
+                text-sm
+                text-slate-500
+              "
+            >
+              Are you sure you want to
+              delete this card?
+            </p>
+
+            {/* ACTIONS */}
+            <div
+              className="
+                mt-5
+
+                flex items-center
+                justify-end
+
+                gap-2
+              "
+            >
+
+              {/* CANCEL */}
+              <button
+                onClick={() =>
+                  setDeleteModal(false)
+                }
+
+                className="
+                  px-4 py-2
+
+                  rounded-lg
+
+                  border
+                  border-slate-200
+
+                  text-sm
+                  text-slate-700
+
+                  hover:bg-slate-50
+                "
+              >
+                Cancel
+              </button>
+
+              {/* DELETE */}
+              <button
+                onClick={() => {
+
+                  router.delete(
+                    `/cards/${card.id}`
+                  );
+
+                  setDeleteModal(false);
+                }}
+
+                className="
+                  px-4 py-2
+
+                  rounded-lg
+
+                  bg-red-600
+
+                  text-white
+                  text-sm
+
+                  hover:bg-red-700
+                "
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -29,4 +29,5 @@ Rails.application.routes.draw do
       patch :reorder
     end
   end
+  get "/board/history",to: "cards#history"
 end
