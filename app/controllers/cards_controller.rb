@@ -198,11 +198,6 @@ class CardsController < ApplicationController
           card.position,
       }
     )
-    Rails.logger.debug "ACTIVITY CREATED:"
-    Rails.logger.debug message
-
-    Rails.logger.debug "========== MOVE END =========="
-
     head :ok
   end
 

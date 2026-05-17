@@ -22,7 +22,6 @@ export default function TimelineSlider({
 }) {
 
   // SORT EVENTS
-  // OLDEST -> NEWEST
   const sortedEvents =
     useMemo(() => {
 
@@ -50,14 +49,44 @@ export default function TimelineSlider({
   const [internalIndex, setInternalIndex] =
     useState(maxIndex);
 
+  // AUTO REFRESH
+    // AUTO FIX LIVE MODE
+  useEffect(() => {
+
+    // if slider reaches latest
+    // automatically exit
+    // historical mode
+
+    if (
+      internalIndex >=
+      maxIndex
+    ) {
+
+      onLive();
+    }
+
+  }, [
+    internalIndex,
+    maxIndex,
+    onLive
+  ]);
   // SYNC PARENT
   useEffect(() => {
 
-    setInternalIndex(
-      selectedIndex
-    );
+    if (
+      selectedIndex !==
+      internalIndex
+    ) {
 
-  }, [selectedIndex]);
+      setInternalIndex(
+        selectedIndex
+      );
+    }
+
+  }, [
+    selectedIndex,
+    internalIndex
+  ]);
 
   // CURRENT EVENT
   const selectedEvent =
@@ -65,7 +94,7 @@ export default function TimelineSlider({
       internalIndex
     ];
 
-  // CENTER DATE
+  // FORMAT FULL DATE
   const formattedDate =
     selectedEvent
 
@@ -83,11 +112,33 @@ export default function TimelineSlider({
           }
         )
 
-      : "No History";
+      : new Date().toLocaleString(
+          "en-IN",
+          {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
 
-  // OLDEST DATE
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        );
+
+  // TODAY
+  const today =
+    new Date();
+
+  // YESTERDAY
+  const yesterday =
+    new Date();
+
+  yesterday.setDate(
+    today.getDate() - 1
+  );
+
+  // DYNAMIC LEFT DATE
   const oldestDate =
-    sortedEvents[0]
+    sortedEvents.length > 0
 
       ? new Date(
           sortedEvents[0]
@@ -100,11 +151,17 @@ export default function TimelineSlider({
           }
         )
 
-      : "Start";
+      : yesterday.toLocaleDateString(
+          "en-IN",
+          {
+            day: "2-digit",
+            month: "short",
+          }
+        );
 
-  // LATEST DATE
+  // DYNAMIC RIGHT DATE
   const latestDate =
-    sortedEvents[maxIndex]
+    sortedEvents.length > 0
 
       ? new Date(
           sortedEvents[maxIndex]
@@ -117,7 +174,13 @@ export default function TimelineSlider({
           }
         )
 
-      : "Live";
+      : today.toLocaleDateString(
+          "en-IN",
+          {
+            day: "2-digit",
+            month: "short",
+          }
+        );
 
   // SLIDER CHANGE
   const handleSliderChange = (
@@ -133,10 +196,10 @@ export default function TimelineSlider({
       value
     );
 
-    // LAST POSITION
-    // = LIVE
+    // IF LAST INDEX
+    // => LIVE MODE
     if (
-      value === maxIndex
+      value >= maxIndex
     ) {
 
       onLive();
@@ -144,11 +207,12 @@ export default function TimelineSlider({
       return;
     }
 
+    // OTHERWISE
+    // HISTORICAL
     onTimelineChange(
       value
     );
   };
-
   // LIVE BUTTON
   const handleBackToLive = () => {
 
@@ -163,12 +227,9 @@ export default function TimelineSlider({
     <section
       className="
         mt-4
-
         bg-white
         border border-slate-200
-
         rounded-2xl
-
         p-4
       "
     >
@@ -178,7 +239,6 @@ export default function TimelineSlider({
         className="
           flex items-center
           justify-between
-
           mb-3
         "
       >
@@ -194,11 +254,8 @@ export default function TimelineSlider({
           <div
             className="
               w-8 h-8
-
               rounded-xl
-
               bg-indigo-50
-
               flex items-center
               justify-center
             "
@@ -241,7 +298,7 @@ export default function TimelineSlider({
             handleBackToLive
           }
 
-          disabled={!historicalMode}
+          disabled={internalIndex >= maxIndex}
 
           className={`
             flex items-center
@@ -301,9 +358,7 @@ export default function TimelineSlider({
 
           className="
             w-full
-
             accent-indigo-600
-
             cursor-pointer
           "
         />
@@ -321,7 +376,7 @@ export default function TimelineSlider({
           "
         >
 
-          {/* OLDEST */}
+          {/* START */}
           <span>
             {oldestDate}
           </span>
@@ -336,7 +391,7 @@ export default function TimelineSlider({
             {formattedDate}
           </span>
 
-          {/* LATEST */}
+          {/* END */}
           <span>
             {latestDate}
           </span>
@@ -346,15 +401,13 @@ export default function TimelineSlider({
         <div
           className="
             mt-2
-
             text-center
-
             text-[11px]
             font-medium
           "
         >
 
-          {historicalMode ? (
+          {internalIndex < maxIndex ? (
 
             <span
               className="

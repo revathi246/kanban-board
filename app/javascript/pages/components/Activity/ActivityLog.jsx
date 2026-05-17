@@ -157,146 +157,146 @@ export default function ActivityLog({
       </div>
 
       {/* PAGINATION */}
-<div
-  className="
-    pt-2
-    mt-2
+      <div
+        className="
+          pt-2
+          mt-2
 
-    border-t
-    border-slate-100
+          border-t
+          border-slate-100
 
-    flex
-    items-center
-    justify-between
-    gap-1
-  "
->
+          flex
+          items-center
+          justify-between
+          gap-1
+        "
+      >
 
-  {/* FIRST */}
-  <button
-    onClick={() =>
-      setPage(1)
-    }
+        {/* FIRST */}
+        <button
+          onClick={() =>
+            setPage(1)
+          }
 
-    disabled={page === 1}
+          disabled={page === 1}
 
-    className="
-      px-2
-      h-6
+          className="
+            px-2
+            h-6
 
-      rounded-md
-      border
+            rounded-md
+            border
 
-      text-[10px]
+            text-[10px]
 
-      disabled:opacity-40
-    "
-  >
-    First
-  </button>
+            disabled:opacity-40
+          "
+        >
+          First
+        </button>
 
-  {/* PREV */}
-  <button
-    onClick={() =>
-      setPage((prev) =>
-        Math.max(
-          prev - 1,
-          1
-        )
-      )
-    }
+        {/* PREV */}
+        <button
+          onClick={() =>
+            setPage((prev) =>
+              Math.max(
+                prev - 1,
+                1
+              )
+            )
+          }
 
-    disabled={page === 1}
+          disabled={page === 1}
 
-    className="
-      h-6 w-6
+          className="
+            h-6 w-6
 
-      rounded-md
-      border
+            rounded-md
+            border
 
-      flex
-      items-center
-      justify-center
+            flex
+            items-center
+            justify-center
 
-      disabled:opacity-40
-    "
-  >
+            disabled:opacity-40
+          "
+        >
 
-    <ChevronLeft size={12} />
+          <ChevronLeft size={12} />
 
-  </button>
+        </button>
 
-  {/* PAGE */}
-  <span
-    className="
-      text-[10px]
-      text-slate-500
-    "
-  >
-    {page} / {totalPages || 1}
-  </span>
+        {/* PAGE */}
+        <span
+          className="
+            text-[10px]
+            text-slate-500
+          "
+        >
+          {page} / {totalPages || 1}
+        </span>
 
-  {/* NEXT */}
-  <button
-    onClick={() =>
-      setPage((prev) =>
-        Math.min(
-          prev + 1,
-          totalPages
-        )
-      )
-    }
+        {/* NEXT */}
+        <button
+          onClick={() =>
+            setPage((prev) =>
+              Math.min(
+                prev + 1,
+                totalPages
+              )
+            )
+          }
 
-    disabled={
-      page === totalPages ||
-      totalPages === 0
-    }
+          disabled={
+            page === totalPages ||
+            totalPages === 0
+          }
 
-    className="
-      h-6 w-6
+          className="
+            h-6 w-6
 
-      rounded-md
-      border
+            rounded-md
+            border
 
-      flex
-      items-center
-      justify-center
+            flex
+            items-center
+            justify-center
 
-      disabled:opacity-40
-    "
-  >
+            disabled:opacity-40
+          "
+        >
 
-    <ChevronRight size={12} />
+          <ChevronRight size={12} />
 
-  </button>
+        </button>
 
-  {/* LAST */}
-  <button
-    onClick={() =>
-      setPage(totalPages)
-    }
+        {/* LAST */}
+        <button
+          onClick={() =>
+            setPage(totalPages)
+          }
 
-    disabled={
-      page === totalPages ||
-      totalPages === 0
-    }
+          disabled={
+            page === totalPages ||
+            totalPages === 0
+          }
 
-    className="
-      px-2
-      h-6
+          className="
+            px-2
+            h-6
 
-      rounded-md
-      border
+            rounded-md
+            border
 
-      text-[10px]
+            text-[10px]
 
-      disabled:opacity-40
-    "
-  >
-    Last
-  </button>
+            disabled:opacity-40
+          "
+        >
+          Last
+        </button>
 
-</div>
+      </div>
 
     </section>
   );
